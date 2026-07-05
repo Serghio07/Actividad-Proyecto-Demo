@@ -1,0 +1,12 @@
+{
+  "administrador": {
+    "email": "asd@gmail.com",
+    "password": "123123"
+  },
+  "nuevoUsuario": {
+    "name": "Serghio Prueba",
+    "email": "sergio@gmail.com",
+    "password": "123123",
+    "updatedName": "Serghio Prueba"
+  }
+}

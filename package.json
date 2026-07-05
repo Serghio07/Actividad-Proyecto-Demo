@@ -1,0 +1,14 @@
+{
+  "name": "cegos-cypress",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automatización Cypress para CEGOS: login, creación y edición de usuario",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test": "cypress run --browser electron"
+  },
+  "devDependencies": {
+    "cypress": "13.17.0"
+  }
+}
