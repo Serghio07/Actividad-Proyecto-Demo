@@ -2,7 +2,7 @@
   "name": "cegos-cypress",
   "version": "1.0.0",
   "private": true,
-  "description": "Automatización Cypress para CEGOS: login, creación y edición de usuario",
+  "description": "Automatizaci\u00f3n Cypress para CEGOS: login, creaci\u00f3n y edici\u00f3n de usuario",
   "scripts": {
     "cy:open": "cypress open",
     "cy:run": "cypress run",
