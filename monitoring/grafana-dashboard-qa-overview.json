@@ -1,0 +1,143 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Ejecución actual",
+      "id": 1,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_run_success", "refId": "A"}],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {"text": "FALLÓ", "color": "red"},
+                "1": {"text": "EXITOSA", "color": "green"}
+              }
+            }
+          ],
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "Total pruebas",
+      "id": 2,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_tests_total", "refId": "A"}],
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "Aprobadas",
+      "id": 3,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_tests_passed", "refId": "A"}],
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "Fallidas",
+      "id": 4,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_tests_failed", "refId": "A"}],
+      "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "Tasa de aprobación",
+      "id": 5,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "100 * cypress_tests_passed / cypress_tests_total", "refId": "A"}],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "orange", "value": 70}, {"color": "green", "value": 90}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 5}
+    },
+    {
+      "type": "stat",
+      "title": "Duración última ejecución",
+      "id": 6,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_run_duration_seconds", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 5}
+    },
+    {
+      "type": "stat",
+      "title": "Última ejecución",
+      "id": 7,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_run_timestamp_seconds * 1000", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "dateTimeAsIso"}, "overrides": []},
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 5}
+    },
+    {
+      "type": "stat",
+      "title": "Omitidas",
+      "id": 8,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_tests_skipped", "refId": "A"}],
+      "gridPos": {"h": 5, "w": 6, "x": 18, "y": 5}
+    },
+    {
+      "type": "timeseries",
+      "title": "Evolución de resultados",
+      "id": 9,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [
+        {"expr": "cypress_tests_passed", "legendFormat": "Aprobadas", "refId": "A"},
+        {"expr": "cypress_tests_failed", "legendFormat": "Fallidas", "refId": "B"},
+        {"expr": "cypress_tests_skipped", "legendFormat": "Omitidas", "refId": "C"}
+      ],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 10}
+    },
+    {
+      "type": "timeseries",
+      "title": "Duración por spec",
+      "id": 10,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_spec_duration_seconds", "legendFormat": "{{spec}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 10}
+    },
+    {
+      "type": "table",
+      "title": "Fallas por spec",
+      "id": 11,
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "targets": [{"expr": "cypress_spec_tests_failed", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 18}
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["cypress", "testing", "qa", "cegos"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timezone": "browser",
+  "title": "Cypress - QA Overview",
+  "uid": "cypress-qa-overview",
+  "version": 1
+}

@@ -6,6 +6,24 @@ const port = Number(process.env.METRICS_PORT || 9464)
 const resultsFile = path.join(__dirname, '..', 'results', 'results.json')
 const escapeLabel = (value) => String(value).replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n')
 
+function loadResults() {
+  if (!fs.existsSync(resultsFile)) {
+    return {
+      generatedAt: new Date().toISOString(),
+      browser: 'unknown',
+      totalTests: 0,
+      totalPassed: 0,
+      totalFailed: 0,
+      totalPending: 0,
+      totalSkipped: 0,
+      totalDurationMs: 0,
+      specs: []
+    }
+  }
+
+  return JSON.parse(fs.readFileSync(resultsFile, 'utf8'))
+}
+
 function metric(name, help, value, labels = {}) {
   const list = Object.entries(labels).map(([key, item]) => `${key}="${escapeLabel(item)}"`).join(',')
   return `# HELP ${name} ${help}\n# TYPE ${name} gauge\n${name}${list ? `{${list}}` : ''} ${Number(value) || 0}`
@@ -15,12 +33,14 @@ function render() {
   if (!fs.existsSync(resultsFile)) {
     return `${metric('cypress_exporter_up', 'Whether the exporter is running.', 1)}\n${metric('cypress_results_available', 'Whether results exist.', 0)}\n`
   }
-  const data = JSON.parse(fs.readFileSync(resultsFile, 'utf8'))
+
+  const data = loadResults()
   const labels = { browser: data.browser || 'unknown' }
+  const timestamp = Date.parse(data.generatedAt) / 1000
   const lines = [
     metric('cypress_exporter_up', 'Whether the exporter is running.', 1),
     metric('cypress_results_available', 'Whether results exist.', 1),
-    metric('cypress_run_timestamp_seconds', 'Timestamp of the latest run.', Date.parse(data.generatedAt) / 1000),
+    metric('cypress_run_timestamp_seconds', 'Timestamp of the latest run.', timestamp),
     metric('cypress_tests_total', 'Tests in the latest run.', data.totalTests, labels),
     metric('cypress_tests_passed', 'Passed tests in the latest run.', data.totalPassed, labels),
     metric('cypress_tests_failed', 'Failed tests in the latest run.', data.totalFailed, labels),
@@ -36,15 +56,20 @@ function render() {
 }
 
 http.createServer((request, response) => {
-  if (request.url !== '/metrics') {
+  if (request.url === '/metrics') {
+    try {
+      response.writeHead(200, { 'Content-Type': 'text/plain; version=0.0.4' })
+      return response.end(render())
+    } catch (error) {
+      response.writeHead(500)
+      return response.end(`${error.message}\n`)
+    }
+  }
+
+  if (request.url !== '/') {
     response.writeHead(200)
     return response.end('Cypress exporter: /metrics\n')
   }
-  try {
-    response.writeHead(200, { 'Content-Type': 'text/plain; version=0.0.4' })
-    response.end(render())
-  } catch (error) {
-    response.writeHead(500)
-    response.end(`${error.message}\n`)
-  }
+  response.writeHead(200)
+  response.end('Cypress exporter: /metrics\n')
 }).listen(port, '0.0.0.0', () => console.log(`Metrics: http://localhost:${port}/metrics`))
